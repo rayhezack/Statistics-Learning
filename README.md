@@ -10,7 +10,8 @@ The repository mainly logs learning experience of statistics. After learning and
 - Machine Learning
 - Product Sense
 - SQL/Python
-
+- Data Storytelling
+- Strong veral and communication skills
 
 
 **What I would like to share includes the following topics:**
