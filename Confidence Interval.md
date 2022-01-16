@@ -82,6 +82,7 @@ cross_tab
 |---|---|---|
 |Female|2066|906|
 |Male|1340|1431|
+
 There are 2976 females and 2759 males.
 
 Then we can calculate the proportion of male smokers and femake smokers
@@ -94,6 +95,7 @@ res
 |---|---|---|
 |Female|0.304845|2976.0|
 |Male|0.513258|2759.0|
+
 *Step 2: Calculate Standard Error for Sample Proportions*
 ```Python
 res["se"] = np.sqrt(res.mean*(1-res.mean)/res.size)
