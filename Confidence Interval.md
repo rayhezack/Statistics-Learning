@@ -53,7 +53,7 @@ is how to determine the value of "a few", which we usually use z score.
 
 There are two ways of determining the value of t when constructing the confidence interval.
 - One approach is based on making the very strong assumption that the data are independent and identically distributed, and follow a normal distribution. In this case, Z score will follow a Student-t distribution with n-1 degrees of freedom. If we set k equal to the 1-(1-alpha)/2 
-- Another approach is CLT(Central Limit Theory). The CLT states that the sample mean of sufficiently large number of identically distributed random variates will be approximately distributed.  The CLT also implies that the Z-score will be approximately norally distributed. 
+- Another approach is CLT(Central Limit Theory). The CLT states that the sample mean of sufficiently large number of identically distributed random variates will be approximately normally distributed.  The CLT also implies that the Z-score will be approximately norally distributed. 
   - CLT guarantees normality of random sample data even as long as the sample size is sufficiently large even if the individual data values have distributions that are not normal.
 
 
