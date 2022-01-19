@@ -1,4 +1,4 @@
-### Hypothesis Testing
+## Hypothesis Testing
 
 In the passage, I will summarize knowledge about hypothesis testing and
 learning notes of books, such as *Trustworthy Online Controlled Experiment*.
@@ -9,11 +9,11 @@ The main topics include:
 - What is wrong with multiple hypothesis tests?
 
 
-#### What is Hypothesis Testing?
+### What is Hypothesis Testing?
 Hypothesis testing is a kind of inferential statistics in which an analyst
 assesses the plausibility of hypothesis by using sample data.
 
-####  How hypothesis testing works?
+###  How hypothesis testing works?
 
 In hypothesis testing, analysts randomly select samples from population and use
 statistical tests to examine the plausibility of the null hypothesis and 
@@ -29,7 +29,7 @@ between population parameters. For example, we may assume that the *user
 engagement* will be the same even if we launch a new feature into our product;
 the alternative hypothesis will be the user engagement is different from before.
 
-#### How to conduct hypothesis testing?
+### How to conduct hypothesis testing?
 There are four primary steps to implementing hypothesis test:
 - State null hypothesis and alternative hypothesis on the condition of 
 business objective
@@ -108,6 +108,155 @@ lessons is approximately the same as that of black parents with children who
 had swimming lessons.
 
 
-#### Primary Statistical Tests
+### Primary Comparison Tests
+To determine the statistical test that we will use, we should consider
+the prerequisite assumptions and number of groups being compared:
+- Assumptions:
+  - **Independece of observations:** the observations/variables included in our test
+  are not correlated with each other. For example, multiple measurements of the same experiment
+  subject are not independent, such as longitudinal studies. But measurements of
+  different experiment subjects are independent.
+  - **Normality.** Data should follow normal distribution. 
+  - **Homogeneity of variance.** the variance within each group being compared
+  is similar.
+- Number of Groups being compared
+- Number of metrics being compared
+  ![img_2.png](img_2.png)
+
+#### T-Test
+
+T-test is a kind of parametric inferential statistical method used to compare the means
+between two groups(two-sample t-test) or the sample mean with the specified value(one-sample t-test).
+If a dataset follows a normal distribution with known population mean but unknown 
+variance, t-test should be used. 
+
+**Takeaways of T-test:**
+- T-test is a parametric statistical test, meaning that it makes explicit assumptions
+about the dataset.
+- In T-test, test statistic follows a t-distribution under the null hypothesis.
+- Compared with Z-test, which is appropraite for large sample, t-test can be used in
+small dataset(n<=30).
+- T-tets has different types based on the number of samples
+  - One sample t-test compares the sample mean with the hypothesized value
+  - Two sample t-tets compares the means of two independent groups.
+  - Paired t-test compares the difference between the pair of dependent variables.
+
+##### One Sample T-test
+One sample t-tets compares the sample mean with the hypothesized value. For example,
+
+One sample t-test formula:
+<img src="https://render.githubusercontent.com/render/math?math=%5Cfrac%7B%5Cbar%7BX%7D-%5Cmu%7D%7B%5Cfrac%7BS%7D%7B%5Csqrt%7Bn%7D%7D%7D">
+The statistic tries to measure the how far away the sample statistic is from
+the hypothesized value in terms of standard errors. The further away our sample statistic is, the less confident we will 
+be in our null hypothesized value.
+
+**Lab of one sample t-test**
+
+In previous years 52% of parents believed that electronics and social media was the cause of their teenager’s lack of sleep. Do more parents today believe that their teenager’s lack of sleep is caused due to electronics and social media?
+Now we randomly sampled 1018 parents from population, and 56% of parents believe that teenager's lack of sleep is caused by electronics and social media.
+
+- Null: p = 0.52
+- Alternative: p != 0.52
+```Python
+import pandas as pd
+import numpy as np
+from scipy import stats
+import statsmodels.api as sm
+
+# calculate the t statistics
+n = 1018
+p = 0.56
+pnull = 0.52
+se = np.sqrt(p*(1-P)/n)
+tstat = (p-pnull)/se
+
+# calculate p value
+pval = 1-stats.norm(0,1).cdf(tstat) # one-sided test
+print(pval)
+```
+Alternative method is to directly apply proportions_ztest
+```Python
+zstat,pval = sm.stats.proportions_ztest(phat*n,n,pnull,alternative="larger")
+print(pval)
+```
+0.005316510991822442. Based on the pvalue, We have sufficient evidence against
+the null hypothesis. The proportion should be larger than 0.52 today.
+
+##### Two Sample T-Test
+
+Two sample t-test compares the means of two independent groups. For example, we launch
+a new feature into product and want to examine the feature's impact on revenue. After
+collecting data and randomly selecting samples from population into treatment and control,
+we can compare the means of two groups to confirm the research effect.
+
+**Lab of Two Sample T-test**
+
+Considering adults in the NHANES data, do males have a significantly higher 
+Body Mass Index than females?
+```Python
+# first we calculate the point estimate for the difference of BMI
+filepath = "../data/nhanes_2015_2016.csv"
+df = pd.read_csv(filepath)
+
+df["RIAGENDRx"] = df["RIAGENDR"].replace({1:"Male",2:"Female"})
+res = df.groupby("RIAGENDRx").agg({"BMXBMI":[np.mean,np.size,np.std]})
+res.columns = ["mean",'size','std']
+res
+```
+![img_3.png](img_3.png)
+
+Here, the equal variance assumption is violated, so I will use the unpooled
+approach to calculate the test statistic.
+![img_4.png](img_4.png)
+```Python
+dif = res.loc["Female","mean"] - res.loc["Male","mean"]-0
+var1 = res.loc["Female","std"]**2
+var2 = res.loc["Male","std"]**2
+n1 = res.loc["Female","size"]
+n2 = res.loc["Male","size"]
+# calculate tstat and pval
+tstat = dif/np.sqrt(var1/n1+var2/n2)
+pval = stats.t(n1+n2-1).cdf(tstat)
+print(pval)
+>0.9999999998027931
+```
+Alternative method is to use `ttest_ind`
+```Python
+import statsmodels.api as sm
+tstat,pval,df = sm.stats.ttest_ind(mdata["BMXBMI"],fdata["BMXBMI"],alternative="larger",usevar="unequal")
+print(tstat,pval,df)
+>-2.608814433503646 0.995060976960757 173.60922650001183
+
+# scipy package
+tstat,pval = stats.ttest_ind(mdata["BMXBMI"],fdata["BMXBMI"],alternative="greater",equal_var=False)
+print(tstat,pval)
+>2.608814433503642,0.995060976960757
+```
+Based on the p value, we should accept the null hypothesis, indicating that
+the BMI of males do not have significantly higher BMI than females.
+
+
+##### Paired t-test
+
+Paired t-test is used to compare the difference between dependent variables
+for the same subject. For example, a measurement of patients is taken before
+and after experiment.
+
+- Null Hypothesis: there is no significant difference between the two dependent
+variables
+- Alternative Hypothesis: there is a significant difference between the two dependent variables.
+
+**Assumptions:**
+- Differences between the two dependent variables follows a normal distribution
+- Differences between the two dependent variables should not have outliers
+- Observations are randomly selected from the same population
+
+For paired t-tets statistics, the formula is the same as one sample t-test:
+
+<img src="https://render.githubusercontent.com/render/math?math=%5Cfrac%7B%5Cbar%7BX%7D_1-%5Cbar%7BX%7D_2%7D%7B%5Cfrac%7BS_d%7D%7B%5Csqrt%7Bn%7D%7D%7D">
+
+
+
+
 
 
