@@ -1,3 +1,5 @@
+![banner](https://user-images.githubusercontent.com/86893259/150061397-07dcb038-43d5-4078-aee9-60c379a4d3e5.jpg)
+
 # Statistics-Learning-Note
 
 The repository mainly logs learning experience of statistics. After learning and reading statistics books, I will be proactive summarizing everything I learned so as to digest those knowledge and theories. To more clearly demonstrate some of conceptions or statistical theories, I may explain them using real interview questions that data scientists might encounter in their interviews. 
