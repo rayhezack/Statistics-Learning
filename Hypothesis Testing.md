@@ -299,8 +299,94 @@ ANOVA, which is also called analysis of variance, is a statistical test to
 determine the means of more than two groups. 
 
 There are two types of ANOVA test:
-- One way ANOVA test, which uses one i
-- Two way ANOVA test
+- One way ANOVA test, which uses one independent variable
+- Two-way ANOVA test, which uses two independent variables
+
+**The difference between ANOVA test and T test:**
+
+A student t test will tell you if there is a significant difference between groups.
+T-test compares the means, while ANOVA compares variances between populations.
+Technically, we may conduct a series of t-test to compare the means between groups, but ANOVA
+will give us only one single value and a p value to determine whether we accept the null.
+
+**How ANOVA test works?**
+
+ANOVA determines whether the means of groups are statistically different by 
+comparing the means of each group to the overall mean of groups. If the mean of 
+any group is statistically different from the overall mean, the null will be rejected.
+
+ANOVA uses F statistic for statistical significance. F statistic is calculated as dividing 
+the mean variances of each group from the overall variance with the mean variances within group.
+
+<img src="https://render.githubusercontent.com/render/math?math=F%20%3D%20%5Cfrac%7BMSB%7D%7BMSE%7D%20%3D%20%5Cfrac%7BSSB%2F(p-1)%7D%7BSSW%2F(n-p)%7D">
+
+- p is the number of groups/levels
+- n is total sample size
+
+If the varainces within groups is smaller than variances between groups, then the formula will return a high F value, and thus the observed difference between groups is real rather than due to chance. 
+
+
+**Assumptions of ANOVA test**
+- **Independence of observations:** the data were collected using statistically-valid methods, and there are no hidden relationships among observations. If your data fail to meet this assumption because you have a confounding variable that you need to control for statistically, use an ANOVA with blocking variables.
+- **Normally-distributed response variable:** The values of the dependent variable follow a normal distribution.
+- **Homogeneity of variance:** The variation within each group being compared is similar for every group. If the variances are different among the groups, then ANOVA probably isn’t the right fit for the data.
+
+
+
+**Example of One Way ANOVA test**
+
+```python
+import pandas as pd
+import numpy as np
+from scipy import stats
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+data = pd.read_csv("/Users/ray/Desktop/Simon/GSM/core R/class2/data for lecture 2/Anova dataset.csv")
+
+plt,ax = plt.subplots(1,1,figsize=(5,4),dpi=100)
+sns.boxplot(x=data["Strategy"],y=data["Sales"],ax=ax,palette="BuGn_r")
+sns.swarmplot(x=data["Strategy"],y=data["Sales"],ax=ax,color="crimson")
+plt.show()
+```
+
+![img_7.png](img_7.png) 
+
+By observing the graph, we can directly spot the obvious difference in Sales between the Convience and Quality, 
+but our intuition needs to be supported by statistical evidence.
+
+```python
+convience = data.query("Strategy == 'Convience'").Sales
+quality = data.query("Strategy == 'Quality'").Sales
+price = data.query("Strategy == 'Price'").Sales
+
+fstat,pval = stats.stats.f_oneway(convience,quality,price)
+print(fstat,pval)
+
+>3.2330414106178993 0.04677298683145997
+```
+
+**Interprertation:**
+
+- F value = 3.233 means that the variances between groups is three times the size of variances with groups. 
+- p value = 0.046 is smaller than 0.05, indictating that we have sufficient evidence to reject the null and accept the alternative.
+
+The limitation of ANOVA test is that the result does not tell us which two groups are statistically different, although at least two groups differ statistically from each other. In the case, we will perform multiple pairwise comparison analysis using **Tukey’s honestly significantly differenced (HSD)** test, which will yield pair comparison results between groups.
+
+```python
+from bioinfokit.analys import stat
+
+res = stat()
+res.tukey_hsd(data,res_var = "Sales",xfac_var='Strategy',anova_model="Sales~C(Strategy)")
+res.tukey_summary
+```
+
+<img src="/Users/ray/Library/Application Support/typora-user-images/image-20220122002935292.png" alt="image-20220122002935292" style="zoom:50%;" />
+
+Except for the first pair, the comparison result of other pairs are all not statistically significant. Therefore,  Convience is statistically different from Quality.
+
+
+
 
 
 
