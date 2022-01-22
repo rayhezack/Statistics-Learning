@@ -255,6 +255,55 @@ For paired t-tets statistics, the formula is the same as one sample t-test:
 
 <img src="https://render.githubusercontent.com/render/math?math=%5Cfrac%7B%5Cbar%7BX%7D_1-%5Cbar%7BX%7D_2%7D%7B%5Cfrac%7BS_d%7D%7B%5Csqrt%7Bn%7D%7D%7D">
 
+**Example of Paired t-test**
+
+An instructor wants to use two exams in he classes
+next year:This year, she gives both exams to the students. She
+wants to know if the exams are equally difficult and wants to check
+this by looking at the difference between scores. If the mean difference
+is close to zero, she will make a conclusion that the exams are equally difficult.
+
+Based on the information, we can state the following hypothesis:
+
+- Null: the two exams are equally difficult
+- Alternative: the mean difference of two exams is statistically different
+
+```Python
+import pandas as pd
+import numpy as np
+# prepare the data
+student = ["Bob","Nina","Tim","Kate","Alonzo","Jose","Nikhil","Julia","Tohru","Michael","Jean","Indra",
+          "Susan","Allen","Paul","Edwina"]
+exam_score1 = [63,65,56,100,88,83,77,92,90,84,68,74,87,84,71,88]
+exam_score2 = [69,65,62,91,78,87,79,88,85,92,69,81,84,75,84,82]
+data = pd.DataFrame({"student":student,"exam_score1":exam_score1,"exam_score2":exam_score2})
+```
+Calculate test statistic and p value of it
+```Python
+# calculate the difference between the two scores
+data["difference"] = data.exam_score1 - data.exam_score2
+dif_mean = data.difference.mean()
+tstat = dif_mean/(data.difference.std()/np.sqrt(n1))
+from scipy import stats
+# construct a student t distribution with dof n-1
+pval = 2*stats.t(n1-1).cdf(tstat)
+>0.9717484484105116
+```
+Based on the p value, we need to accept the null, indicating that the two exams
+are equally difficult.
+
+
+#### ANOVA Test
+
+ANOVA, which is also called analysis of variance, is a statistical test to
+determine the means of more than two groups. 
+
+There are two types of ANOVA test:
+- One way ANOVA test, which uses one i
+- Two way ANOVA test
+
+
+
 
 
 
