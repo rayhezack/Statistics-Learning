@@ -6,7 +6,6 @@ The main topics include:
 - What is hypothesis testing
 - How to conduct hypothesis testing
 - Primary statistical tests
-- What is wrong with multiple hypothesis tests?
 
 
 ### What is Hypothesis Testing?
