@@ -389,9 +389,211 @@ Except for the first pair, the comparison result of other pairs are all not stat
 
 
 
+#### Chisquare Test
 
 
 
+**What is a Chi-Square tets?**
+
+There are two types of chi square test, and both use chi-square statistic and distributions for different purposes
+
+- Goodness of fit test.  Goodness of fit test is used to test if the sample data fits a distribution from a certain population we expect. In other words, it tells you if your data sample can represent the data you would expect to find in actual population. 
+- Independence test. The kind of test compares two variables in contingency table to examine whether they are correlated. In a more general sense, it compares if the distributions of two variables differ from each other.
 
 
+
+**How chi-square tets works?**
+
+When doing Chi-square test, either goodness of fit test or independence test, we will obtain chi-square statistic and p value of it. The chi-square p value can tell us if the test results are significant or not. To get the chi-square p value, we need the following information:
+
+- Degree of freedom. The degree of freedom equals to the number of rows multiplied by the number of columns.
+- The alpha level. We usaully set the alpha level to 0.05
+
+**Chi-square Statistic**
+
+First, we calculate the chi-square statistics. Chi-square statistic is a robust measure of the correlation between categorical variables. It is a single number that tells us how much difference exists between the observed counts and expected counts.
+$$
+\chi^2 = \sum_{l=1}^L\sum_{m=1}^M\frac{(o_{lm}-e_{lm})^2}{e_{lm}}
+$$
+
+- L corresponds to the number of rows, M corresponds to the number of columns
+- $o_{lm}$ represents the observed value in certain row and column
+- $e_{lm}$ represents the expeced value
+
+A small chi-square statistic value indicates that there is no relationship between the two variables. If the observed value equals to the expected value, chi-square statistic will be zero. On the other hand, a large value indicates that the two variables might be related. But we need to determine if the statistic value is large enough for ==statistical significance.== This is where **chi-square p value** comes in. 
+
+**Chi-square Distribution**
+
+We will find the p value for the chi-square statistic in a general chi-square distribution with $(l-1)\times(m-1)$ degrees of freedom. Then compare it with the specified significance level to decide the statistical significance.
+
+```python
+fig,ax = plt.subplots(1,1,figsize=(5,3),dpi=100,facecolor="whitesmoke")
+dfs = np.r_[2,3,4,6,8,9]
+sns.set_palette(palette="Reds")
+for df in dfs:
+    x = np.linspace(0,11,1000)
+    # create chi2 distribution
+    chi2_dist = stats.chi2(df=df)
+    # calculate the probability for each chi2 value
+    y = chi2_dist.pdf(x)
+    lab_txt = f"df:{df}"
+    sns.lineplot(x=x,y=y,ax=ax)
+
+ax.set_title('Chi-square Distributions')
+ax.patch.set_facecolor('#ababab')
+ax.patch.set_alpha(0.5)
+ax.set_xlim([0,10])
+ax.set_ylim([0,0.5])
+plt.tick_params(labelsize=8)
+plt.show()
+```
+
+<img src="/Users/ray/Library/Application Support/typora-user-images/image-20220125162449690.png" alt="image-20220125162449690" style="zoom:50%;" />\
+
+
+
+**Chi-square Assumptions:**
+
+- Both variables are categorical variables
+- All observations are independent
+- Cells in contingency table are mutually exclusive
+- Expected value of cells should be 5 or greater in at least 80% of cells.
+
+
+
+##### Goodness of Fit Test
+
+Goodness of fit test is a very common filed for which we apply chi-square test. It is worth noting that the test is usually applied in online controlled experiment, aka A/B testing, to inspect the issue of ***sample ratio mismatch.*** Sample ratio mismatch, which is a kind of guardrail metric, looks at the ratio of users between two variants, usually Control and Treatment. The metric is used to ensure both the internal validity and trustworthiness of experiemnt results. When there is a low p value for sample ratio metric, the observed ratio is not within our expectation and thus a sample ratio mismatch.
+
+
+
+**[Example of goodness fit test](https://courses.lumenlearning.com/odessa-introstats1-1/chapter/goodness-of-fit-test/)**
+
+Absenteeism of college students from math classes is a major concern to math instructors because missing class appears to increase the drop rate. Suppose that a study was done to determine if the actual student absenteeism rate follows faculty perception. The faculty expected that a group of 100 students would miss class according to this table.
+
+| Day of Week | **Expected number of students** |
+| ----------- | ------------------------------- |
+| Monday      | 15                              |
+| Tuesday     | 12                              |
+| Wednesday   | 9                               |
+| Thursday    | 9                               |
+| Friday      | 15                              |
+
+A random survey across all mathematics courses was then done to determine the actual number **(observed)** of absences in a course. The chart in this table displays the results of that survey.
+
+| Day of Week | **Expected number of students** |
+| ----------- | ------------------------------- |
+| Monday      | 12                              |
+| Tuesday     | 12                              |
+| Wednesday   | 12                              |
+| Thursday    | 12                              |
+| Friday      | 12                              |
+
+Now, we confirm whether the actual student absenteeism conforms to the expectation of faculty by chi-square test.
+
+*Step 1: State Hypothesis*
+
+$H_0:$ The sampled student absenteeism conforms to the expectation of faculty
+
+$H_1:$ The sampled student absenteeism does not comform to the expectation of faculty.
+
+*Step 2: calculate the Chi-square stat and p value* 
+
+```python
+import pandas as pd
+import numpy as np
+from scipy import stats
+
+exp_num = [12,12,12,12,12]
+ob_num = [15,12,9,9,15]
+cat = ["Monday","Tuesday","Wednesday","Thursday","Friday"]
+df = pd.DataFrame({"Expected Num":exp_num,"Observed Num":ob_num},index=cat)
+
+# conduct the hypothesis test
+chi_stat = sum((df['Observed Num'] - df['Expected Num'])**2/df['Expected Num'])
+pval = stats.chi2(df=4).sf(chi_stat)
+alpha = 0.05
+if pval < alpha:
+    print("We have sufficient evidence against the null")
+else:
+    print("Accept the null")
+>Accept the null
+```
+
+We also can do this by `chisquare` function in scipy package
+
+```python
+chi,pval = stats.chisquare(f_obs=df["Observed Num"],f_exp=df["Expected Num"])
+print(chi,pval)
+>statistic=3.0, pvalue=0.5578254003710748
+```
+
+**Conclusion:** At a 5% level of significance, from the sample data, there is not sufficient evidence to conclude that the absent days do not occur with equal frequencies.
+
+
+
+##### Independence Test
+
+Another use of chi-squre test is to identify the association between two variables. We usually do this by creating a contingency table displaying the frequencies for particular combination of two categorical/discrete variables. Each cell in the table represents a mutually exclusive combination of X-Y values. If two categorical variables are really not correlated with each other, then the frequency of one category should not differ significantly from another category. 
+
+Therefore our null hypothesis is that two variables we examine are independent of each other, and the alternative is the opposite case. 
+
+
+
+**Example**
+
+In the dataset, students in grades 4-6 were asked whether good grades, athletic, ability, or popularity was most important to them. A two-way table separating the students by grade and by choice of most important factor is shown below. Do these data provide evidence to suggest that goals vary by grade?
+
+|          | Grades | Popular | Sports |
+| -------- | ------ | ------- | ------ |
+| $4^{th}$ | 63     | 31      | 25     |
+| $5^{th}$ | 88     | 55      | 33     |
+| $6^{th}$ | 96     | 55      | 32     |
+
+==Note: before doing the test, the cell values in a contingency table should be at least 5.==
+
+
+
+The last sentence "Do these data provide evidence to suggest that goals vary by grade?" indicates that this is an independent problem and the two factors are **Grade** and **goals**. We state the hypothesis:
+
+$H_0:$ grade is independent of goals
+
+$H_1:$ grade is dependent on goals
+
+We first create a contingency table
+
+```python
+df = pd.DataFrame({"Grades":[63,88,96],
+                          "Popular":[31,55,55],
+                          "Sports":[25,33,32]},
+                         index=[4,5,6])
+df = df.reset_index().rename(columns={"index":"Level"})
+df_melted = pd.melt(df,id_vars="Level",value_vars=["Grades","Popular","Sports"],var_name="goal",value_name="score")
+contingency_table = pd.pivot_table(df_melted,index="Level",columns="goal",values="score",aggfunc="sum",margins=True)
+contingency_table
+```
+
+<img src="/Users/ray/Library/Application Support/typora-user-images/image-20220125184846577.png" alt="image-20220125184846577" style="zoom:50%;" />
+
+Then based on the table, we can calculate the expected frequency for each cell of it. Let's take the cell with level 4 and goal of grades as an example to demonstrate how to make a expected contingency table.
+
+Of 474 students, overall 119 of them are fourth grade student, so fourth-grade student totally accounts for $\frac{119}{478} = 25\%$, so the expected frequency for student who considers *Grades* important should be $247\times 25\% = 61.49$. We can get the value of other cells using the same formula. 
+
+Let me use python to get the table
+
+```python
+chi2,p,dof,expected = stats.chi2_contingency(df)
+exp_cont_tab = pd.DataFrame(expected,index=[4,5,6],columns=df.columns)
+exp_cont_tab
+```
+
+```
+Chi2 stat:1.3121045153815976
+p value:0.8593185000807877
+degree of freedom:4
+```
+
+<img src="/Users/ray/Library/Application Support/typora-user-images/image-20220125190105596.png" alt="image-20220125190105596" style="zoom:50%;" />
+
+**Conclusion:** the p value is greater than 0.05, so we do not have sufficient evidence against the null hypothesis, meaning that goal is independent of grade.
 
