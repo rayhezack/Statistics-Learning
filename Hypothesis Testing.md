@@ -6,7 +6,6 @@ The main topics include:
 - What is hypothesis testing
 - How to conduct hypothesis testing
 - Primary statistical tests
-- What is wrong with multiple hypothesis tests?
 
 
 ### What is Hypothesis Testing?
@@ -371,7 +370,7 @@ print(fstat,pval)
 - F value = 3.233 means that the variances between groups is three times the size of variances with groups. 
 - p value = 0.046 is smaller than 0.05, indictating that we have sufficient evidence to reject the null and accept the alternative.
 
-The limitation of ANOVA test is that the result does not tell us which two groups are statistically different, although at least two groups differ statistically from each other. In the case, we will perform multiple pairwise comparison analysis using **Tukey’s honestly significantly differenced (HSD)** test, which will yield pair comparison results between groups.
+The limitation of ANOVA test is that the result does not tell us which two groups are statistically different, although at least two groups differ statistically from each other. In the case, we will perform multiple pairwise comparison analysis using **Tukey’s honestly significantly differenced (HSD)** test, which will yield pair comparison results.
 
 ```python
 from bioinfokit.analys import stat
@@ -381,7 +380,8 @@ res.tukey_hsd(data,res_var = "Sales",xfac_var='Strategy',anova_model="Sales~C(St
 res.tukey_summary
 ```
 
-<img src="/Users/ray/Library/Application Support/typora-user-images/image-20220122002935292.png" alt="image-20220122002935292" style="zoom:50%;" />
+![image](https://user-images.githubusercontent.com/86893259/150626475-aa27804c-bc24-4df3-81f7-9cffb6af7b5e.png)
+
 
 Except for the first pair, the comparison result of other pairs are all not statistically significant. Therefore,  Convience is statistically different from Quality.
 
