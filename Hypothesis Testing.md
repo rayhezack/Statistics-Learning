@@ -412,9 +412,8 @@ When doing Chi-square test, either goodness of fit test or independence test, we
 **Chi-square Statistic**
 
 First, we calculate the chi-square statistics. Chi-square statistic is a robust measure of the correlation between categorical variables. It is a single number that tells us how much difference exists between the observed counts and expected counts.
-$$
-\chi^2 = \sum_{l=1}^L\sum_{m=1}^M\frac{(o_{lm}-e_{lm})^2}{e_{lm}}
-$$
+
+![image](https://user-images.githubusercontent.com/86893259/151080448-230f064e-0565-4032-8b6b-c34863b6e0bc.png)
 
 - L corresponds to the number of rows, M corresponds to the number of columns
 - $o_{lm}$ represents the observed value in certain row and column
@@ -448,8 +447,7 @@ plt.tick_params(labelsize=8)
 plt.show()
 ```
 
-<img src="/Users/ray/Library/Application Support/typora-user-images/image-20220125162449690.png" alt="image-20220125162449690" style="zoom:50%;" />\
-
+![image](https://user-images.githubusercontent.com/86893259/151080486-df3a8f83-7114-4fa8-bdac-00b95aad1aed.png)
 
 
 **Chi-square Assumptions:**
@@ -573,7 +571,8 @@ contingency_table = pd.pivot_table(df_melted,index="Level",columns="goal",values
 contingency_table
 ```
 
-<img src="/Users/ray/Library/Application Support/typora-user-images/image-20220125184846577.png" alt="image-20220125184846577" style="zoom:50%;" />
+![image](https://user-images.githubusercontent.com/86893259/151080551-61a637a4-0726-4f54-8dea-4c473f1cccb4.png)
+
 
 Then based on the table, we can calculate the expected frequency for each cell of it. Let's take the cell with level 4 and goal of grades as an example to demonstrate how to make a expected contingency table.
 
@@ -593,7 +592,7 @@ p value:0.8593185000807877
 degree of freedom:4
 ```
 
-<img src="/Users/ray/Library/Application Support/typora-user-images/image-20220125190105596.png" alt="image-20220125190105596" style="zoom:50%;" />
+![image](https://user-images.githubusercontent.com/86893259/151080567-97e41635-ba89-44e6-929e-05231d135d35.png)
 
 **Conclusion:** the p value is greater than 0.05, so we do not have sufficient evidence against the null hypothesis, meaning that goal is independent of grade.
 
